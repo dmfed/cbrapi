@@ -1,4 +1,4 @@
-package cbrcurrency
+package cbrapi
 
 var (
 	baseURL               string = "https://www.cbr.ru/scripts/"

@@ -1,4 +1,4 @@
-package cbrcurrency
+package cbrapi
 
 import (
 	"regexp"
