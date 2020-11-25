@@ -13,15 +13,15 @@ var basePATH = "/tmp/" // Program saves CBR_API_codes.json to this path
 
 // globalVarAPICodes points to codeKeeper type initialized on start
 // This enables other parts of program to find API codes, names etc. of
-//currencies known to the Central Bank of Russia API
+// currencies known to the Central Bank of Russia API
 var globalVarAPICodes codeKeeper
 
 type codeKeeper map[string]Currency
 
-// InitAPI looks for a local copy of CBR_API_codes.json. IF successful
-// it points global variable APICodes to usable codeKeeper struct
-// If function fails to read local file and fetch codes from API
-// it returns an error indicating either that out request to API failed,
+// InitAPI looks for a local copy of CBR_API_codes.json and tries to load it
+// into memory. IF successful it points global variable APICodes to usable codeKeeper struct.
+// If it failes to read local file then it tries to fetch codes from cbr.ru API
+// IF that fails it returns an error indicating either that out request to API failed,
 // or that received xml failed to deserialize.
 func initAPI() error {
 	ck, err := codeKeeperFromFile()
