@@ -83,10 +83,10 @@ func (c *Currency) CodeISO() int {
 	return c.ISONumCode
 }
 
-// RateAt accept either "DD/MM/YYYY" formatted date or
+// RateAtDate accept either "DD/MM/YYYY" formatted date or
 // time.Time object. It sends request to the API and returns
 // ExchangeRate object
-func (c *Currency) RateAt(date interface{}) (ExchangeRate, error) {
+func (c *Currency) RateAtDate(date interface{}) (ExchangeRate, error) {
 	rate := ExchangeRate{}
 	url := fmt.Sprintf(endpointSingleDate, apidate(date).stringobject())
 	resp, err := http.Get(url)
@@ -137,4 +137,29 @@ func (c *Currency) RateAtRangeDates(startdate, enddate interface{}) ([]ExchangeR
 	default:
 		return rates, nil
 	}
+}
+
+// QuoteAtDate accepts ISO code of currency and either "DD/MM/YYYY" formatted date or
+// time.Time object and returns ExchangeRate object
+func QuoteAtDate(ISOCode string, date interface{}) (ExchangeRate, error) {
+	c, err := New(ISOCode)
+	if err != nil {
+		return ExchangeRate{}, err
+	}
+	rate, err := c.RateAtDate(date)
+	c = nil
+	return rate, err
+}
+
+// QuoteAtRangeDates accepts ISO code of currency and either "DD/MM/YYYY" formatted dates or
+// time.Time objects where startdate and enddate are both inclusive and returns slice of
+// ExchangeRate objects for corresponding dates
+func QuoteAtRangeDates(ISOCode string, startdate, enddate interface{}) ([]ExchangeRate, error) {
+	c, err := New(ISOCode)
+	if err != nil {
+		return []ExchangeRate{}, err
+	}
+	rate, err := c.RateAtRangeDates(startdate, enddate)
+	c = nil
+	return rate, err
 }
