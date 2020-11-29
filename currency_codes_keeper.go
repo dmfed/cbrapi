@@ -18,10 +18,10 @@ var globalVarAPICodes codeKeeper
 
 type codeKeeper map[string]Currency
 
-// InitAPI looks for a local copy of CBR_API_codes.json and tries to load it
-// into memory. IF successful it points global variable APICodes to usable codeKeeper struct.
-// If it failes to read local file then it tries to fetch codes from cbr.ru API
-// IF that fails it returns an error indicating either that out request to API failed,
+// initAPI looks for a local copy of CBR_API_codes.json and tries to load it
+// into memory. If successful it points global variable APICodes to usable codeKeeper struct.
+// If it fails to read local file then it tries to fetch codes from cbr.ru API
+// If that also fails it returns an error indicating either that out request to API failed,
 // or that received xml failed to deserialize.
 func initAPI() error {
 	ck, err := codeKeeperFromFile()

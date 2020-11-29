@@ -17,7 +17,7 @@ var (
 	errorNoData        = errors.New("API did not provide requested data")
 )
 
-// Currency represents a currency known to Central Bank API
+// Currency represents a currency known to Central Bank of Russia API
 // Fields of this struct are almost identical to what API returns
 type Currency struct {
 	NameRUS     string
@@ -46,8 +46,9 @@ func (r ExchangeRate) String() string {
 }
 
 // New returns instance of Currency object which can be used
-// to request exchange rate of currency from the Central BAnk API
-// with RateAT() and RateAtRangeDates() methods
+// to request exchange rate of currency from the Central Bank API
+// with RateAtDate() and RateAtRangeDates() methods or
+// QuoteAtDate() and QuoteAtRangeDates()
 func New(ISOcode string) (*Currency, error) {
 	ISOcode = strings.ToUpper(ISOcode)
 	if globalVarAPICodes == nil {
@@ -68,7 +69,7 @@ func (c *Currency) NameRU() string {
 	return c.NameRUS
 }
 
-// NameEN returnc currency name in English
+// NameEN returns currency name in English
 func (c *Currency) NameEN() string {
 	return c.NameENG
 }
