@@ -1,3 +1,6 @@
+// Package cbrapi implements basic functionality of API
+// of Central Bank of Russia (cbr.ru). It allows to quote
+// exchange rates of currencies.
 package cbrapi
 
 import (
