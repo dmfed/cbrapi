@@ -10,7 +10,7 @@ Usage is quite simple (see below sample code). The only two points that need to 
 
 2. ExchangeRate object implements Stringer, so if you care to only receive the float (the rate itself), use relevant field and do not Print/Sprint etc.
 
-
+See [package documentation at pkg.go.dev](https://pkg.go.dev/github.com/dmfed/cbrapi) for details.
 
 ```go
 import "https://github.com/dmfed/cbrapi/"
@@ -32,7 +32,7 @@ func main() {
 	}
 	usdrate, err := usd.RateAtDate(time.Now()) // returns current exchange rate USD/RUB
 	fmt.Println(usdrate, err)
-	eurrate, _ := cbrapi.QuoteAtDate("EUR", "01/09/2020") // return exchange rate of EUR at September 1st 2020
+	eurrate, _ := cbrapi.QuoteAtDate("EUR", "01/09/2020") // returns exchange rate of EUR at September 1st 2020
 	fmt.Println(eurrate)
 	usdrange, _ := usd.RateAtRangeDates("01/09/2020", "04/09/2020")
 	for _, item := range usdrange {
