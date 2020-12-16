@@ -12,6 +12,10 @@ Usage is quite simple (see below sample code). The only two points that need to 
 
 See [package documentation at pkg.go.dev](https://pkg.go.dev/github.com/dmfed/cbrapi) for details.
 
+To use the library: **go get github.com/dmfed/cbrapi**
+
+And here comes a working example: 
+
 ```go
 import "https://github.com/dmfed/cbrapi/"
 
