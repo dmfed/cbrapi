@@ -5,11 +5,17 @@ import (
 	"encoding/xml"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"golang.org/x/net/html/charset"
 )
 
-var basePATH = "/tmp/" // Program saves CBR_API_codes.json to this path
+var (
+	basePATH       = os.TempDir()
+	keeperFilename = "cbrapi_codes.json"
+	keeperTMP      = filepath.Join(basePATH, keeperFilename)
+)
 
 // globalVarAPICodes points to codeKeeper type initialized on start
 // This enables other parts of program to find API codes, names etc. of
@@ -39,7 +45,7 @@ func initAPI() error {
 
 func codeKeeperFromFile() (codeKeeper, error) {
 	ck := make(codeKeeper)
-	data, err := ioutil.ReadFile(basePATH + "CBR_API_codes.json")
+	data, err := ioutil.ReadFile(keeperTMP)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +55,7 @@ func codeKeeperFromFile() (codeKeeper, error) {
 
 func codeKeeperFromAPI() (codeKeeper, error) {
 	ck := make(codeKeeper)
-	response, err := http.Get(endpointCurrencyCodes)
+	response, err := http.Get(EndpointCurrencyCodes)
 	if err != nil {
 		return ck, err
 	}
@@ -66,6 +72,6 @@ func codeKeeperFromAPI() (codeKeeper, error) {
 			ISONumCode: item.ISONumCode, ISOCharCode: item.ISOCharCode}
 	}
 	data, _ := json.MarshalIndent(ck, "", "    ")
-	ioutil.WriteFile(basePATH+"CBR_API_codes.json", data, 0644)
+	ioutil.WriteFile(keeperTMP, data, 0644)
 	return ck, nil
 }

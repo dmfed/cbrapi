@@ -12,8 +12,8 @@ type stringtotime struct {
 }
 
 var (
-	dateStringFormatForAPIwithSlash = regexp.MustCompile("^\\d{2}/\\d{2}/\\d{4}$")
-	dateStringFormatForAPIwithDot   = regexp.MustCompile("^\\d{2}\\.\\d{2}\\.\\d{4}$")
+	dateStringFormatForAPIwithSlash = regexp.MustCompile(`^\d{2}\/\d{2}\/\d{4}$`)
+	dateStringFormatForAPIwithDot   = regexp.MustCompile(`\d{2}\.\d{2}\.\d{4}$`)
 )
 
 // apidate accepts either time.Time type OR date in form of string strictly

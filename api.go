@@ -1,6 +1,6 @@
 // Package cbrapi implements basic functionality of API
 // of Central Bank of Russia (cbr.ru). It allows to quote
-// exchange rates of currencies.
+// exchange rates of currencies in very simple steps
 package cbrapi
 
 import (
@@ -16,8 +16,10 @@ import (
 )
 
 var (
-	errorIncorrectCode = errors.New("Provided currency code is not known to the API")
-	errorNoData        = errors.New("API did not provide requested data")
+	// ErrIncorrectCode is returned if currency code is not supported by the API
+	ErrIncorrectCode = errors.New("Provided currency code is not known to the API")
+	// ErrNoData is returned if rate for requested date(s) was not found
+	ErrNoData = errors.New("API did not provide requested data")
 )
 
 // Currency represents a currency known to Central Bank of Russia API
@@ -31,7 +33,7 @@ type Currency struct {
 	ISOCharCode string
 }
 
-// ExchangeRate represents exchange rate of a currency at certain date.
+// ExchangeRate represents exchange rate of a currency at specified date.
 type ExchangeRate struct {
 	ISOCode string
 	Nominal int
@@ -52,39 +54,19 @@ func (r ExchangeRate) String() string {
 // to request exchange rate of currency from the Central Bank API
 // with RateAtDate() and RateAtRangeDates() methods or
 // QuoteAtDate() and QuoteAtRangeDates()
+// In case of error New returns nil. Make sure to always check error.
 func New(ISOcode string) (*Currency, error) {
 	ISOcode = strings.ToUpper(ISOcode)
 	if globalVarAPICodes == nil {
-		err := initAPI()
-		if err != nil {
+		if err := initAPI(); err != nil {
 			return nil, err
 		}
 	}
 	item, ok := globalVarAPICodes[ISOcode]
 	if !ok {
-		return nil, errorIncorrectCode
+		return nil, ErrIncorrectCode
 	}
 	return &item, nil
-}
-
-// NameRU returns currency name in Russian
-func (c *Currency) NameRU() string {
-	return c.NameRUS
-}
-
-// NameEN returns currency name in English
-func (c *Currency) NameEN() string {
-	return c.NameENG
-}
-
-// NameISO returns ISO character code of currency
-func (c *Currency) NameISO() string {
-	return c.ISOCharCode
-}
-
-// CodeISO returns ISO numeric code of currency
-func (c *Currency) CodeISO() int {
-	return c.ISONumCode
 }
 
 // RateAtDate accept either "DD/MM/YYYY" formatted date or
@@ -92,7 +74,7 @@ func (c *Currency) CodeISO() int {
 // ExchangeRate object
 func (c *Currency) RateAtDate(date interface{}) (ExchangeRate, error) {
 	rate := ExchangeRate{}
-	url := fmt.Sprintf(endpointSingleDate, apidate(date).stringobject())
+	url := fmt.Sprintf(EndpointSingleDate, apidate(date).stringobject())
 	resp, err := http.Get(url)
 	if err != nil {
 		return rate, err
@@ -106,11 +88,15 @@ func (c *Currency) RateAtDate(date interface{}) (ExchangeRate, error) {
 	}
 	for _, item := range daily.Elements {
 		if item.APIID == c.APIID {
-			rate, _ := strconv.ParseFloat(strings.ReplaceAll(item.Value, ",", "."), 64)
-			return ExchangeRate{ISOCode: c.ISOCharCode, Nominal: c.Nominal, Date: apidate(date).timeobject(), Rate: rate}, nil
+			r, _ := strconv.ParseFloat(strings.ReplaceAll(item.Value, ",", "."), 64)
+			rate.ISOCode = c.ISOCharCode
+			rate.Nominal = c.Nominal
+			rate.Date = apidate(date).timeobject()
+			rate.Rate = r
+			break
 		}
 	}
-	return rate, errorNoData
+	return rate, ErrNoData
 }
 
 // RateAtRangeDates accept either "DD/MM/YYYY" formatted date or
@@ -118,7 +104,7 @@ func (c *Currency) RateAtDate(date interface{}) (ExchangeRate, error) {
 // slice of ExchangeRate objects
 func (c *Currency) RateAtRangeDates(startdate, enddate interface{}) ([]ExchangeRate, error) {
 	rates := []ExchangeRate{}
-	url := fmt.Sprintf(endpointDateRange, apidate(startdate).stringobject(), apidate(enddate).stringobject(), c.APIID)
+	url := fmt.Sprintf(EndpointDateRange, apidate(startdate).stringobject(), apidate(enddate).stringobject(), c.APIID)
 	resp, err := http.Get(url)
 	if err != nil {
 		return rates, err
@@ -137,7 +123,7 @@ func (c *Currency) RateAtRangeDates(startdate, enddate interface{}) ([]ExchangeR
 	}
 	switch len(rates) {
 	case 0:
-		return rates, errorNoData
+		return rates, ErrNoData
 	default:
 		return rates, nil
 	}
@@ -151,7 +137,7 @@ func QuoteAtDate(ISOCode string, date interface{}) (ExchangeRate, error) {
 		return ExchangeRate{}, err
 	}
 	rate, err := c.RateAtDate(date)
-	c = nil
+	c = nil // cleanup
 	return rate, err
 }
 
@@ -164,6 +150,6 @@ func QuoteAtRangeDates(ISOCode string, startdate, enddate interface{}) ([]Exchan
 		return []ExchangeRate{}, err
 	}
 	rate, err := c.RateAtRangeDates(startdate, enddate)
-	c = nil
+	c = nil // cleanup
 	return rate, err
 }
